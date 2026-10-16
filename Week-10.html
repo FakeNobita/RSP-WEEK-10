@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsible &amp; Safe AI Systems WEEK-10</title>
+    <link rel="icon" href="favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #e5e5e5;
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .question-image {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 16px auto;
+            border-radius: 8px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .option {
+            color: #333333;
+            background-color: #ffffff;
+            padding: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            min-height: 50px;
+            line-height: 1.4;
+        }
+
+        .option:hover {
+            background-color: #f8f8f8;
+        }
+
+        .option-label {
+            color: #333333;
+            font-size: 16px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+            display: block;
+            flex: 1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .option.selected {
+            border-color: #3b82f6;
+        }
+
+        .option.correct {
+            background-color: #ecfdf5;
+        }
+
+        .option.wrong {
+            background-color: #fef2f2;
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0 12px 0 0;
+            padding: 0;
+            flex: 0 0 16px;
+            vertical-align: middle;
+        }
+
+        .feedback {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e5e5;
+            display: none;
+        }
+
+        .feedback.visible {
+            display: block;
+        }
+
+        .result-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .result-icon.correct {
+            color: #059669;
+        }
+
+        .result-icon.wrong {
+            color: #dc2626;
+        }
+
+        .correct-answer {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: #f0fdf4;
+            border-left: 4px solid #059669;
+            border-radius: 6px;
+            color: #166534;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+        }
+
+        .score {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #2563eb;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WEEK-10 (Responsible &amp; Safe AI Systems)</h1>
+        <div id="quiz-container"></div>
+        <div class="controls">
+            <div id="score" class="score"></div>
+            <button id="submit-btn" class="button">Submit Answers</button>
+        </div>
+    </div>
+
+    <script>
+const questions = [
+  {
+    "id": 1,
+    "question": "According to the lecture, why is black-box access considered insufficient for conducting rigorous AI auditing?",
+    "options": [
+      "It restricts evaluation to only the utilization of computation.",
+      "It focuses only on the final outputs rather than the internal mechanisms.",
+      "It fails to reveal underlying problematic model behaviour.",
+      "It requires the auditors to retrain the underlying weights from scratch."
+    ],
+    "correctAnswer": 1,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 1 [3:56-4:31] - Black-box auditing is insufficient because the auditor might fail to identify and surface the model’s problematic behaviour.",
+    "type": "single"
+  },
+  {
+    "id": 2,
+    "question": "How does “goal misgeneralization” differ from “reward hacking”?",
+    "options": [
+      "The agent pursues a different goal that is merely correlated with the true reward function.",
+      "The agent continuously optimizes an imperfect proxy goal, worsening the outcomes.",
+      "The agent actively manipulates its own code to rewrite the target goal.",
+      "The agent randomly pursues a completely new, unpredictable behvaiour is deployment."
+    ],
+    "correctAnswer": 0,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 1 [6:22-7:07] - Goal misgeneralization is when the model ends up optimizing a different reward function because it was merely correlated with the true reward function.",
+    "type": "single"
+  },
+  {
+    "id": 3,
+    "question": "Which of the following characteristics of highly agentic AI systems could introduce severe safety concerns beyond those of current language models?",
+    "options": [
+      "High parameter count and dense multi-head attention.",
+      "Increased speed of token generation in text.",
+      "Exploding context window expansion.",
+      "Direct interaction with external digital infrastructure."
+    ],
+    "correctAnswer": 3,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 1 [32:10-33:53] - According to the lecture, highly agentic systems present severe existential and safety risks. When AI systems are plugged into digital infrastructures, companies, militaries, etc., and allowed to act autonomously, they may be able to successfully “disempower humanity”.",
+    "type": "single"
+  },
+  {
+    "id": 4,
+    "question": "Why are benchmarks insufficient for assessing dangerous capabilities in current models?",
+    "options": [
+      "Benchmarks fail to capture emergent behaviours in a tool-based environment.",
+      "Benchmarks require white-box parameter access to accurately test models.",
+      "Benchmarks are only able to accurately assess image models and not language models.",
+      "Benchmarks cannot measure basic mathematical computation accuracy."
+    ],
+    "correctAnswer": 0,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 1 [23:07-23:41] - Benchmarks don’t reflect underlying capability because they can be very narrow. Looking at performance on a slightly different distribution shows that a system can perform much differently.",
+    "type": "single"
+  },
+  {
+    "id": 5,
+    "question": "Instead of relying on third-party audits, what alternative approach can developers use to demonstrate that a model is safe before deployment?",
+    "options": [
+      "Deploying models in restricted sandbox environments to observe failure cases.",
+      "Releasing the complete source code and model weights to the public.",
+      "Providing a positive case demonstrating that the system is safe.",
+      "Mandating that all training be physically monitored by the public."
+    ],
+    "correctAnswer": 2,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 1 [7:16-7:50] - Developers should be making a positive deployment of AI systems to show that they are safe and that they are going to have a positive impact.",
+    "type": "single"
+  },
+  {
+    "id": 6,
+    "question": "What is a systemic risk about highly capable, personalized AI assistants that adapt to a user's habits?",
+    "options": [
+      "They will overwrite local user data to optimize their performance.",
+      "They will frequently hallucinate and fabricate sensitive personal information or memories.",
+      "They put dangerous amounts of private information in the hands of a few big companies.",
+      "They require localized hardware upgrades that need to be funded by the user."
+    ],
+    "correctAnswer": 2,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 1 [40:20-41:28] - By having these AI assistants learn about very personal information, this information is being stored by big companies, which gives them a dangerous amount of power.",
+    "type": "single"
+  },
+  {
+    "id": 7,
+    "question": "According to the lecture, why is training models on copyrighted data not constitute “transformative fair use”?",
+    "options": [
+      "The models fail to provide accurate citations for the generated content.",
+      "The resulting model directly competes economically with the creators.",
+      "The generated outputs are legally indistinguishable from the copyrighted data.",
+      "The training process stores exact copies of the original works."
+    ],
+    "correctAnswer": 1,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 1 [36:46-37:48] - The models are directly competing with the creators of the copyrighted data, which does not fall under fair use.",
+    "type": "single"
+  },
+  {
+    "id": 8,
+    "question": "According to the lecture, why might single-nation AI regulations fail to prevent the deployment of dangerous AI systems?",
+    "options": [
+      "National regulators lack the technical tools needed to monitor large computing data centers within their own borders.",
+      "Individual nations may have the need to bypass regulations and build dangerous AI systems anyways.",
+      "International copyright laws prevent individual countries from enforcing safety standards on foreign models.",
+      "Private AI companies can legally overturn single-nation safety laws in international judicial systems."
+    ],
+    "correctAnswer": 1,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 1 [31:03-31:19] - Individual nations may have reasons to bypass regulations and build a “dangerous” AI.",
+    "type": "single"
+  },
+  {
+    "id": 9,
+    "question": "Which mechanism explains why safety fine-tuning may fail to eliminate deep-seated societal biases in LLMs?",
+    "options": [
+      "Catastrophic learning episodes",
+      "Superficial behaviour alignment",
+      "Inference latency optimization",
+      "Data scaling bottlenecks"
+    ],
+    "correctAnswer": 1,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 2 [2:00-3:55] - Safety mechanisms or safety fine-tuning in LLMs are often superficial. They teach systems to say a \"politically correct\" answer, while deep-seated implicit biases remain hidden in the model's underlying representations.",
+    "type": "single"
+  },
+  {
+    "id": 10,
+    "question": "Why is it dangerous for AI systems to be optimized for user persuasiveness?",
+    "options": [
+      "It requires continuous access to quantum compute.",
+      "It degrades latency during multi-turn dialogue.",
+      "It creates incentives to manipulate human intent.",
+      "It prevents models from processing implicit or indirect input cues"
+    ],
+    "correctAnswer": 2,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 2 [27:19-28:08] - Optimizing persuasiveness gives AI systems leverage to manipulate human behaviour and intention, essentially using human beings as a means to an end.",
+    "type": "single"
+  },
+  {
+    "id": 11,
+    "question": "Why is it better to have upstream regulation for companies developing AI systems and hardware than having downstream regulation on the people using the AI systems?",
+    "options": [
+      "Developers are completely free of standard regulations.",
+      "Developers lack any technical control over baseline models.",
+      "Users control the underlying training data pipeline.",
+      "Users face high market pressure to adopt AI systems."
+    ],
+    "correctAnswer": 3,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 2 [7:03-7:37] - AI systems provide users with a competitive advantage, and they feel immense pressure to adopt AI in order for their business to survive.",
+    "type": "single"
+  },
+  {
+    "id": 12,
+    "question": "According to the lecture, why is cross-modal capability considered to be a characteristic of Artificial General Intelligence (AGI)?",
+    "options": [
+      "Text processing requires higher computational memory.",
+      "Multimodal models eliminate risks of hallucinations in the outputs.",
+      "Language models cannot represent abstract reasoning.",
+      "Excluding human modalities creates a gap in real-world understanding."
+    ],
+    "correctAnswer": 3,
+    "explanation": "AI Policies, AGI with Prof. David Krueger - Part 2 [13:18-13:37] - Multimodality is a crucial component for AGI, as without it, it creates a qualitative cognitive deficit.",
+    "type": "single"
+  }
+];
+
+let selectedAnswers = {};
+let submitted = false;
+
+function createQuiz() {
+    const quizContainer = document.getElementById('quiz-container');
+
+    questions.forEach(question => {
+        const questionCard = document.createElement('div');
+        questionCard.className = 'question-card';
+
+        const isMultiSelect = Array.isArray(question.correctAnswer);
+
+        questionCard.innerHTML = `
+            <div class="question-text">Q${question.id}. ${question.question}</div>
+            ${question.image ? `<img src="${question.image}" alt="Image for question ${question.id}" class="question-image">` : ''}
+            ${question.type === 'numeric' ? `
+                <div class="options-container">
+                    <input class="numeric-answer" type="number" id="numeric-${question.id}" placeholder="Enter your numerical answer" style="width:100%; padding:12px; border:1px solid #e5e5e5; border-radius:8px; font-size:16px;">
+                </div>
+            ` : `<div class="options-container">
+                ${question.options.map((option, index) => `
+                    <label class="option" data-question="${question.id}" data-option="${index}">
+                        ${isMultiSelect
+                            ? `<input class="answer-control" type="checkbox" name="question${question.id}" value="${index}">`
+                            : `<input class="answer-control" type="radio" name="question${question.id}" value="${index}">`
+                        }
+                        <span class="option-label">${option}</span>
+                    </label>
+                `).join('')}
+            </div>`}
+
+            <div class="feedback" id="feedback-${question.id}">
+                <div class="result-icon">
+                    <span class="icon"></span>
+                    <span class="result-text"></span>
+                </div>
+
+                <div class="correct-answer">
+                    Correct Answer: ${question.explanation}
+                </div>
+            </div>
+        `;
+
+        quizContainer.appendChild(questionCard);
+    });
+
+    document.querySelectorAll('.option').forEach(option => {
+        option.addEventListener('click', handleOptionSelect);
+    });
+
+    document.getElementById('submit-btn').addEventListener('click', handleSubmit);
+
+    questions.filter(question => question.type === 'numeric').forEach(question => {
+        const numericInput = document.getElementById(`numeric-${question.id}`);
+        numericInput.addEventListener('input', () => {
+            if (!submitted && numericInput.value.trim() !== '') {
+                selectedAnswers[question.id] = numericInput.value.trim();
+            } else {
+                delete selectedAnswers[question.id];
+            }
+        });
+    });
+}
+
+function handleOptionSelect(event) {
+    if (submitted) return;
+
+    const questionId = parseInt(event.currentTarget.dataset.question);
+    const optionIndex = parseInt(event.currentTarget.dataset.option);
+    const question = questions.find(q => q.id === questionId);
+    const isMultiSelect = Array.isArray(question.correctAnswer);
+
+    if (isMultiSelect) {
+        if (!selectedAnswers[questionId]) {
+            selectedAnswers[questionId] = [];
+        }
+
+        const checkbox = event.currentTarget.querySelector('input[type="checkbox"]');
+
+        if (checkbox.checked) {
+            if (!selectedAnswers[questionId].includes(optionIndex)) {
+                selectedAnswers[questionId].push(optionIndex);
+            }
+
+            event.currentTarget.classList.add('selected');
+        } else {
+            selectedAnswers[questionId] = selectedAnswers[questionId].filter(i => i !== optionIndex);
+            event.currentTarget.classList.remove('selected');
+        }
+
+        if (selectedAnswers[questionId].length === 0) {
+            delete selectedAnswers[questionId];
+        }
+    } else {
+        selectedAnswers[questionId] = optionIndex;
+
+        const questionOptions = document.querySelectorAll(
+            `.option[data-question="${questionId}"]`
+        );
+
+        questionOptions.forEach(option => {
+            option.classList.remove('selected');
+        });
+
+        event.currentTarget.classList.add('selected');
+
+        event.currentTarget.querySelector('input[type="radio"]').checked = true;
+    }
+}
+
+function handleSubmit() {
+    if (Object.keys(selectedAnswers).length < questions.length) {
+        alert("Please answer all questions before submitting!");
+        return;
+    }
+
+    submitted = true;
+    let score = 0;
+
+    questions.forEach(question => {
+        let isCorrect;
+
+        if (question.type === 'numeric') {
+            isCorrect = Number(selectedAnswers[question.id]) === question.correctAnswer;
+        } else if (Array.isArray(question.correctAnswer)) {
+            const selected = selectedAnswers[question.id] || [];
+            const expected = [...question.correctAnswer].sort((a, b) => a - b);
+            const actual = [...selected].sort((a, b) => a - b);
+
+            isCorrect =
+                expected.length === actual.length &&
+                expected.every((value, index) => value === actual[index]);
+        } else {
+            isCorrect =
+                selectedAnswers[question.id] === question.correctAnswer;
+        }
+
+        if (isCorrect) {
+            score++;
+        }
+
+        const feedback = document.getElementById(`feedback-${question.id}`);
+        feedback.classList.add('visible');
+
+        const resultIcon = feedback.querySelector('.result-icon');
+        const resultText = feedback.querySelector('.result-text');
+
+        if (isCorrect) {
+            resultIcon.classList.add('correct');
+            resultText.textContent = 'Correct Answer +1';
+        } else {
+            resultIcon.classList.add('wrong');
+            resultText.textContent = 'Wrong Answer +0';
+        }
+
+        const options = document.querySelectorAll(
+            `.option[data-question="${question.id}"]`
+        );
+
+        if (question.type === 'numeric') {
+            const numericInput = document.getElementById(`numeric-${question.id}`);
+            numericInput.disabled = true;
+            numericInput.style.borderColor = isCorrect ? '#059669' : '#dc2626';
+        }
+
+        options.forEach((option, index) => {
+            const correct = Array.isArray(question.correctAnswer)
+                ? question.correctAnswer.includes(index)
+                : index === question.correctAnswer;
+
+            const selected = Array.isArray(question.correctAnswer)
+                ? (selectedAnswers[question.id] || []).includes(index)
+                : index === selectedAnswers[question.id];
+
+            if (correct) {
+                option.classList.add('correct');
+            } else if (selected) {
+                option.classList.add('wrong');
+            }
+        });
+    });
+
+    document.getElementById('score').textContent =
+        `Score: ${score}/${questions.length}`;
+
+    const submitBtn = document.getElementById('submit-btn');
+
+    submitBtn.textContent = 'Try Again';
+
+    submitBtn.removeEventListener('click', handleSubmit);
+    submitBtn.addEventListener('click', resetQuiz);
+}
+
+function resetQuiz() {
+    location.reload();
+}
+
+createQuiz();
+    </script>
+</body>
+</html>
